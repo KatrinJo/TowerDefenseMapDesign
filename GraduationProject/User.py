@@ -1,7 +1,7 @@
 import numpy as np
 import io
 import os
-from Model import Enemy, EnemyInstance, Tower, TowerInstance, Map
+from Model import EnemyInstance, TowerInstance, Map
 
 
 class User:
@@ -13,10 +13,10 @@ class User:
         cost = 0
         for x in range(map.mapHeight):
             for y in range(map.mapWidth):
-                if [x,y] in map.roadInfo:
-                    pass
-                if len(map.mapInfo[x][y]) > 0:
-                    pass
+                if [x,y] in map.roadInfo: # 要建塔的位置在道路上
+                    continue
+                if len(map.mapInfo[x][y]) > 0: # 要建塔的位置上已经有塔了
+                    continue
                 for k in towerConfig.keys():
                     if cost + towerConfig[k]["tPrice"] > self.uWealth:
                         continue

@@ -5,21 +5,16 @@ from collections import OrderedDict
 from User import User
 from Model import EnemyInstance, TowerInstance, Map
 
-def distance(point1, point2):
-    return np.linalg.norm((np.array(point1) - np.array(point2)), ord=2)
-
 def simulation():
     global towerCount, enemyCount
     if towerCount <= 0 or enemyCount <= 0:
         return -1 # TODO：确定返回值格式
-    pass
+    return 0
 
 
 if __name__ == '__main__':
     with open("../config/record.json","r") as f:
         data = json.load(f)
-        # pprint(data)
-        # print(type(data))
 
     gridMap = Map(data["Map"]["mapHeight"], data["Map"]["mapWidth"], data["Map"]["mapStart"], data["Map"]["mapEnd"], data["Road"])
     roadInfo = data["Road"]
@@ -51,6 +46,15 @@ if __name__ == '__main__':
             newTowers, cost = user.place_new_tower(gridMap,towerConfig)
             costCount = 0
             for k in newTowers.keys():
+                costCount += newTowerData["tPrice"]
+                if costCount > user.uWealth:
+                    print("财富不足以建塔")
+                    flag = -4
+                    break
+            if flag != 0:
+                break
+            user.uWealth -= costCount
+            for k in newTowers.keys():
                 (x,y) = k
                 if x < 0 or x >= gridMap.mapHeight or y < 0 or y >= gridMap.mapWidth:
                     print("不能超出地图范围")   
@@ -67,11 +71,6 @@ if __name__ == '__main__':
                 newTowerType = newTowers[k]
                 newTowerData = towerConfig[newTowerType]
                 towerIns[towerCount] += [TowerInstance(newTowerData["tType"],newTowerData["tAttack"],newTowerData["tPrice"],newTowerData["tRange"],newTowerData["tFreq"],newTowerData["tSlowRate"])]
-                costCount += newTowerData["tPrice"]
-                if costCount > user.uWealth:
-                    print("财富不足以建塔")
-                    flag = -4
-                    break
                 gridMap.mapInfo[x][y] += [towerCount]
                 towerCount += 1
             if flag != 0:
@@ -95,7 +94,17 @@ if __name__ == '__main__':
                     tSlowRate = dictEidEhpEspeed[k]["tSlowRate"]
                     res = enemyIns[k].reveive_attack(tAttack, tSlowRate)
                     if res == -1:
+                        pos = enemyIns[k].position
+                        [x, y] = gridMap.roadInfo[pos]
+                        [x2, y2] = dictEidEhpEspeed[k]["ePos"]
+                        if x != x2 or y != y2:
+                            flag = -10
+                            break
                         enemyIns.pop(k)
+                        if k not in gridMap.mapInfo[x][y]:
+                            flag = -11
+                            break
+                        gridMap.mapInfo[x][y].remove(k) # remove(value)
             # TODO：新敌人的产生
             for i in len(en):
                 tmpNum = en[i]
@@ -106,6 +115,16 @@ if __name__ == '__main__':
                     enemyMaxID += 1
             # TODO：敌人行进
             for k in enemyIns.keys():
+                pos = enemyIns[k].position
+                [x, y] = gridMap.roadInfo[pos]
+                [x2, y2] = dictEidEhpEspeed[k]["ePos"]
+                if x != x2 or y != y2:
+                    flag = -10
+                    break
+                enemyIns.pop(k)
+                if k not in gridMap.mapInfo[x][y]:
+                    flag = -11
+                    break
                 res = enemyIns[k].go_forward()
                 if res != -100 and res != -200:
                     if res < 0:
@@ -116,6 +135,10 @@ if __name__ == '__main__':
                         print("波次"+str(i+1)+"没有成功，编号为"+str(k)+"的敌人抵达了终点")
                         flag = 1
                         break
+                gridMap.mapInfo[x][y].remove(k) # remove(value)
+                enemyIns[k].position = res
+                [x, y] = gridMap.roadInfo[res]
+                gridMap.mapInfo[x][y] += k
             if flag != 0:
                 break
         if flag != 0:

@@ -43,8 +43,7 @@ class EnemyInstance:
             return -200
         self.eCurrSpeed = self.eSpeed
         self.eNextMoveTimeRest = max(int(1/eCurrSpeed)-1,0) # 这一回合能前进，看速度
-        self.position += max(1, self.eCurrSpeed)
-        return self.position
+        return self.position + max(1, self.eCurrSpeed)
 
 class TowerInstance:
     def __init__(self, type, attack, price, range, freq, slowrate, pos):
@@ -61,7 +60,7 @@ class TowerInstance:
     def detect_and_attack(self, map): 
         if self.tNextAttackTimeRest > 0: # 这一回合炮塔不能攻击
             self.tNextAttackTimeRest -= 1
-            return {"-1": {"tAttack":0, "tSlowRate":1}}
+            return {"-1": {"ePos":[-1,-1], "tAttack":0, "tSlowRate":1}}
 
         dictEidEhpEspeed = {}
         roadInfo = map.roadInfo
@@ -80,7 +79,7 @@ class TowerInstance:
             [sx, sy] = self.position # sx和sy是炮塔的横纵坐标，含义为self.x
             if "single" in towerType: # 只攻击一个敌人
                 for k in map.mapInfo[x][y]:
-                    dictEidEhpEspeed[k] = {"tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
+                    dictEidEhpEspeed[k] = {"ePos":[x,y], "tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
                     return dictEidEhpEspeed
                 # 暂时选择（1）中的FIFO —— 有几种炮塔的攻击策略：
                 # （1）根据敌人在list中的顺序FIFO/LIFO； （2）根据敌人的剩余血量从大到小/从小到大
@@ -92,7 +91,7 @@ class TowerInstance:
                         for k in map.mapInfo[tx][ty]:
                             if k < 0 or type(k) != 'int': # k要保证是大于等于0的整数
                                 continue
-                            dictEidEhpEspeed[k] = {"tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
+                            dictEidEhpEspeed[k] = {"ePos":[tx,ty], "tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
                 elif "line" in towerType:
                     if sx != x and sy != y: # 只攻击在竖直方向和水平方向上的敌人
                         continue
@@ -106,7 +105,7 @@ class TowerInstance:
                             for k in map.mapInfo[tx][ty]: # mapInfo的list里存放的是移动到这里的敌人的eID，要么为空
                                 if k < 0 or type(k) != 'int': # k要保证是大于等于0的整数
                                     continue
-                                dictEidEhpEspeed[k] = {"tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
+                                dictEidEhpEspeed[k] = {"ePos":[tx,ty], "tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
                     else:
                         for j in range(i, -1, -1):
                             [tx, ty] = roadInfo[j]
@@ -115,7 +114,7 @@ class TowerInstance:
                             for k in map.mapInfo[tx][ty]:
                                 if k < 0 or type(k) != 'int': 
                                     continue
-                                dictEidEhpEspeed[k] = {"tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
+                                dictEidEhpEspeed[k] = {"ePos":[tx,ty], "tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
         self.tNextAttackTimeRest = 0
         if len(dictEidEhpEspeed.keys()) > 0:
             tmpKey = list(dictEidEhpEspeed.keys())
