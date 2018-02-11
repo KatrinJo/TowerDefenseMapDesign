@@ -9,8 +9,9 @@ class Map:
         self.mapEnd = e
         
         
-        tmpMapInfo = [[] for i in range(w)] # 存放：-1表示路径，其余表示敌人的eID
-        tmpMapInfo = [tmpMapInfo for i in range(w)]
+        tmpMapInfo = [[[] for i in range(w)] for j in range(h)]# 存放：-1表示路径，其余表示敌人的eID
+        #print(tmpMapInfo)
+        tmpMapInfo = np.array(tmpMapInfo).tolist()
         self.roadInfo = ri
         for grid in ri:
             [x,y] = grid
@@ -18,7 +19,7 @@ class Map:
         self.mapInfo = tmpMapInfo
 
 class EnemyInstance:
-    def __init__(self, type, hp, speed):
+    def __init__(self, type, hp, speed, reward):
         self.eType = type
         self.eHP = hp
         self.eSpeed = speed
@@ -26,6 +27,7 @@ class EnemyInstance:
         self.position = -1 # 表示在道路上的第几个格子上
         self.eRestHP = hp
         self.eCurrSpeed = speed
+        self.eReward = reward
 
     def reveive_attack(self, subHP, subSpeed):
         self.eRestHP -= subHP
@@ -42,7 +44,7 @@ class EnemyInstance:
             self.eCurrSpeed = self.eSpeed
             return -200
         self.eCurrSpeed = self.eSpeed
-        self.eNextMoveTimeRest = max(int(1/eCurrSpeed)-1,0) # 这一回合能前进，看速度
+        self.eNextMoveTimeRest = max(int(1/self.eCurrSpeed)-1,0) # 这一回合能前进，看速度
         return self.position + max(1, self.eCurrSpeed)
 
 class TowerInstance:
@@ -65,7 +67,7 @@ class TowerInstance:
         dictEidEhpEspeed = {}
         roadInfo = map.roadInfo
         for i in range(len(roadInfo)-1,-1,-1): # 找触发条件
-            if len(dictEidEhpEspeed.keys) > 0:
+            if len(dictEidEhpEspeed.keys()) > 0:
                 break
             [x, y] = roadInfo[i] # x,y是道路的某个格子的横纵坐标
             dis = np.linalg.norm((np.array(roadInfo[i]) - np.array(self.position)), ord=2) # 先确定是否在射程之内

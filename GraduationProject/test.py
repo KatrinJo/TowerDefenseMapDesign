@@ -17,9 +17,3 @@ def func():
     b += 3
     print(b)
 
-if __name__ == '__main__':
-    tet()
-    b = 4
-    func()
-    
-

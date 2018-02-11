@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import Button
+from tkinter import ttk
 import time
 import numpy as np
 from PIL import ImageTk, Image
@@ -17,7 +18,7 @@ class GraphicDisplay(tk.Tk):
     def __init__(self, agent):
         super(GraphicDisplay, self).__init__()
         self.title('Tower Defense')
-        self.geometry('{0}x{1}'.format(WIDTH * UNIT, HEIGHT * UNIT + 50))
+        self.geometry('{0}x{1}'.format(WIDTH * UNIT, HEIGHT * UNIT + UNIT * 1.5))
         self.texts = []
         self.arrows = []
         self.env = Env()

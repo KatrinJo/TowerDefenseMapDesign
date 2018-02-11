@@ -28,17 +28,20 @@
     ],
     "EnemyTypeNum": 3,
     "Enemy": {
-        "eType1": {
+        "1": {
             "eHP": 15,
-            "eSpeed": 1
+            "eSpeed": 1,
+            "eReward": 28
         },
-        "eType2": {
+        "2": {
             "eHP": 10,
-            "eSpeed": 2
+            "eSpeed": 2,
+            "eReward": 56
         },
-        "eType3": {
+        "3": {
             "eHP": 200,
-            "eSpeed": 0.5
+            "eSpeed": 0.5,
+            "eReward": 98
         }
     },
     "EnemyWave": {
@@ -55,7 +58,7 @@
     },
     "TowerTypeNum": 5,
     "Tower": {
-        "tType1": {
+        "1": {
             "tType": "single",
             "tAttack": 24,
             "tPrice": 160,
@@ -63,7 +66,7 @@
             "tFreq": 1,
             "tSlowRate": 1
         },
-        "tType2": {
+        "2": {
             "tType": "single",
             "tAttack": 10,
             "tPrice": 100,
@@ -71,7 +74,7 @@
             "tFreq": 1,
             "tSlowRate": 1
         },
-        "tType3": {
+        "3": {
             "tType": "pack-round",
             "tAttack": 17,
             "tPrice": 180,
@@ -79,7 +82,7 @@
             "tFreq": 1,
             "tSlowRate": 1
         },
-        "tType4": {
+        "4": {
             "tType": "pack-line",
             "tAttack": 12,
             "tPrice": 160,
@@ -87,7 +90,7 @@
             "tFreq": 1,
             "tSlowRate": 1
         },
-        "tType5": {
+        "5": {
             "tType": "pack-round",
             "tAttack": 5,
             "tPrice": 180,
@@ -96,5 +99,5 @@
             "tSlowRate": 0
         }
     },
-    "UserInitialWealth": 100
+    "UserInitialWealth": 1000
 }
