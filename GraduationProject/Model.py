@@ -24,7 +24,7 @@ class EnemyInstance:
         self.eHP = hp
         self.eSpeed = speed
         self.eNextMoveTimeRest = 0 # 表示下次移动还剩多少回合，max(int(1/eSpeed)-1,0)
-        self.position = -1 # 表示在道路上的第几个格子上
+        self.position = -1 # 表示在道路上的第几个格子上，第一次产生是在-1格子上，之后移动
         self.eRestHP = hp
         self.eCurrSpeed = speed
         self.eReward = reward
