@@ -25,6 +25,7 @@ class Application(tk.Frame):
                b = tk.Button(g)
                row.append(b)
                b.grid(row=i, column=j)
+               b.config(height = 2, width = 10)
                b["bg"] = blankColor # "#" + format(r.randint(0, (1 << 24) - 1), "06x") #  "#{:06x}".format(r.randint(0, (1 << 24) - 1))
                # b["text"] = (i, j)
 
@@ -41,14 +42,15 @@ class Application(tk.Frame):
         scrollbar = tk.Scrollbar(logframe, orient=tk.VERTICAL)
         self.logs = tk.Listbox(logframe, yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.logs.yview)
+        
         self.logs.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        scrollbar.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        scrollbar.pack(side=tk.LEFT, fill=tk.Y, expand=1)
         
         scrollbar2 = tk.Scrollbar(logframe, orient=tk.VERTICAL)
         self.logs2 = tk.Listbox(logframe, yscrollcommand=scrollbar2.set)
         scrollbar2.config(command=self.logs2.yview)
         self.logs2.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        scrollbar2.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        scrollbar2.pack(side=tk.LEFT, fill=tk.Y, expand=1)
 
     def say_hi(self):
         print("hi there, everyone!")

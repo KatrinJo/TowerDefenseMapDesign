@@ -30,8 +30,10 @@ class EnemyInstance:
         self.eReward = reward
 
     def reveive_attack(self, subHP, subSpeed):
+        #print("我受到了攻击嘤嘤嘤，原血量为" + str(self.eRestHP) + "，原速度为" + str(self.eCurrSpeed))
         self.eRestHP -= subHP
         self.eCurrSpeed *= subSpeed
+        #print("受到攻击，现血量为" + str(self.eRestHP) + "，现速度为" + str(self.eCurrSpeed))
         if self.eRestHP <= 0:
             return -1
         return 0
@@ -40,7 +42,7 @@ class EnemyInstance:
         if self.eNextMoveTimeRest > 0: # 这一回合不能前进，需要等待
             self.eNextMoveTimeRest -= 1
             return -100
-        if self.eCurrSpeed == 0: # 这一回合能前进，但是速度为0
+        if self.eCurrSpeed == 0: # 这一回合能前进，但是速度为0，所以还是停留在原来的格子
             self.eCurrSpeed = self.eSpeed
             return -200
         self.eCurrSpeed = self.eSpeed
@@ -62,7 +64,7 @@ class TowerInstance:
     def detect_and_attack(self, map): 
         if self.tNextAttackTimeRest > 0: # 这一回合炮塔不能攻击
             self.tNextAttackTimeRest -= 1
-            return {"-1": {"ePos":[-1,-1], "tAttack":0, "tSlowRate":1}}
+            return {-1: {"ePos":[-1,-1], "tAttack":0, "tSlowRate":1}}
 
         dictEidEhpEspeed = {}
         roadInfo = map.roadInfo
@@ -73,7 +75,7 @@ class TowerInstance:
             dis = np.linalg.norm((np.array(roadInfo[i]) - np.array(self.position)), ord=2) # 先确定是否在射程之内
             if dis > self.tRange:
                 continue
-            if len(map.mapInfo[x][y]) == 0: # 确定在射程之内的格子上是否有敌人
+            if len(map.mapInfo[x][y]) <= 1: # 确定在射程之内的格子上是否有敌人
                 continue
 
             # 触发攻击条件：射程内的某格子上存在敌人，可以实施打击（根据炮塔种类确定是否打击）
@@ -81,6 +83,8 @@ class TowerInstance:
             [sx, sy] = self.position # sx和sy是炮塔的横纵坐标，含义为self.x
             if "single" in towerType: # 只攻击一个敌人
                 for k in map.mapInfo[x][y]:
+                    if k < 0: 
+                        continue
                     dictEidEhpEspeed[k] = {"ePos":[x,y], "tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
                     return dictEidEhpEspeed
                 # 暂时选择（1）中的FIFO —— 有几种炮塔的攻击策略：
@@ -91,7 +95,7 @@ class TowerInstance:
                     for j in range(i, -1, -1):
                         [tx, ty] = roadInfo[j] # 道路上的第j个格子，做tmpx之意
                         for k in map.mapInfo[tx][ty]:
-                            if k < 0 or type(k) != 'int': # k要保证是大于等于0的整数
+                            if k < 0: # k要保证是大于等于0的整数
                                 continue
                             dictEidEhpEspeed[k] = {"ePos":[tx,ty], "tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
                 elif "line" in towerType:
@@ -105,7 +109,7 @@ class TowerInstance:
                             if tx != x or (sy - y)*(sy - ty) <= 0: # 道路上的格子不在一条横线上，或与敌人不在炮塔的同一侧
                                 continue
                             for k in map.mapInfo[tx][ty]: # mapInfo的list里存放的是移动到这里的敌人的eID，要么为空
-                                if k < 0 or type(k) != 'int': # k要保证是大于等于0的整数
+                                if k < 0: # k要保证是大于等于0的整数
                                     continue
                                 dictEidEhpEspeed[k] = {"ePos":[tx,ty], "tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
                     else:
@@ -114,7 +118,7 @@ class TowerInstance:
                             if ty != y or (sx - x)*(sx - tx) <= 0: # 竖线，类似以上的横线处理
                                 continue
                             for k in map.mapInfo[tx][ty]:
-                                if k < 0 or type(k) != 'int': 
+                                if k < 0: 
                                     continue
                                 dictEidEhpEspeed[k] = {"ePos":[tx,ty], "tAttack": self.tAttack, "tSlowRate":self.tSlowRate}
         self.tNextAttackTimeRest = 0

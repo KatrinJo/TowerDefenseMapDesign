@@ -84,16 +84,17 @@ def place_tower(app, num): # 放置塔
 
 def attack_enemy(app):
     global towerIns, enemyIns, gridMap, flag, user
-    dictEidEhpEspeed = {"-1": {"ePos":[-1,-1], "tAttack":0, "tSlowRate":1}}
+    app.logs.insert(tk.END, "开始攻击")
+    dictEidEhpEspeed = {-1: {"ePos":[-1,-1], "tAttack":0, "tSlowRate":1}}
     for i in towerIns.keys(): # 对于每个塔都要进行攻击统计
         tower = towerIns[i]
         tpos = tower.position
         dictEidEhpEspeed = tower.detect_and_attack(gridMap)
-        enemyKeys = dictEidEhpEspeed.keys()
+        enemyKeys = dictEidEhpEspeed.keys()# enemyKeys = [int(e) for e in enemyKeys]
         if len(enemyKeys) == 0:
             continue
         for k in enemyKeys:
-            if k < 0 or type(k) != 'int': 
+            if k < 0: 
                 continue
             if k not in enemyIns:
                 print("敌人实例列表中没有此敌人")
@@ -101,7 +102,9 @@ def attack_enemy(app):
                 break
             tAttack = dictEidEhpEspeed[k]["tAttack"]
             tSlowRate = dictEidEhpEspeed[k]["tSlowRate"]
+            app.logs2.insert(tk.END, str(k)+"号敌人遭受攻击前，原血量为"+ str(enemyIns[k].eRestHP) + "，应减少血量" + str(tAttack))
             res = enemyIns[k].reveive_attack(tAttack, tSlowRate)
+            app.logs2.insert(tk.END, str(k)+"号敌人遭受攻击后，血量变为"+ str(enemyIns[k].eRestHP))
             if res == -1:
                 pos = enemyIns[k].position
                 [x, y] = gridMap.roadInfo[pos]
@@ -115,6 +118,9 @@ def attack_enemy(app):
                     flag = -11
                     break
                 gridMap.mapInfo[x][y].remove(k) # remove(value)
+                if len(gridMap.mapInfo[x][y]) == 1: # 这个格子的敌人被打死了，之后这个格子里没有了敌人
+                    app.mapgrid[x][y]["bg"] = roadColor
+                app.mapgrid[x][y]["text"] = ''.join(enemyName[int(enemyIns[e].eType)] for e in gridMap.mapInfo[x][y] if e >= 0)
         if flag != 0:
             break
     return flag
@@ -136,12 +142,14 @@ def produce_enemy(app, en, enemyMaxID):
 
 def go_ahead_enemy(app, num):
     global enemyIns, gridMap, flag, lenRoad
+    app.logs2.insert(tk.END, "敌人行进")
     for k in enemyIns.keys():
         pos = enemyIns[k].position
         if pos < 0:
             enemyIns[k].position = 0
             [x, y] = gridMap.roadInfo[0]
             gridMap.mapInfo[x][y] += [k]
+            app.mapgrid[x][y]["bg"] = enemyColor
             continue
         [x, y] = gridMap.roadInfo[pos]
         if k not in gridMap.mapInfo[x][y]:
@@ -149,6 +157,8 @@ def go_ahead_enemy(app, num):
             flag = -11
             break
         res = enemyIns[k].go_forward()
+        if res == -100 or res == -200:
+            continue
         if res != -100 and res != -200:
             if res < 0:
                 print("道路格子下标成负数了")
@@ -190,9 +200,12 @@ def simulation(app):
     for i in range(1, len(enemyWave.keys()) + 1):
         en = enemyWave[str(i)] # 按波次放敌人，[num1，num2，num3]表示三种类型敌人的个数
         flag = 0 # towerCount = len(towerIns.keys())
-
-        app.logs.insert(tk.END, "", "第"+str(i+1)+"波次")
-        app.logs2.insert(tk.END, "", "第"+str(i+1)+"波次")
+        if i == 1:
+            app.logs.insert(tk.END, "第"+str(i)+"波次")
+            app.logs2.insert(tk.END, "第"+str(i)+"波次")
+        else:
+            app.logs.insert(tk.END, "", "第"+str(i)+"波次")
+            app.logs2.insert(tk.END, "", "第"+str(i)+"波次")
         # TODO：放置塔
         po, flag = place_tower(app, i)
         yield
