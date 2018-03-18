@@ -1,4 +1,4 @@
-{
+data = {
     "Map": {
         "mapHeight": 10,
         "mapWidth": 10,

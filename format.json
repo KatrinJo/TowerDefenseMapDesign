@@ -1,0 +1,40 @@
+// 第一回合裁判输入
+{
+    "log": [],
+    "initdata": ""
+}
+// 应当输出
+{
+    "command": "request",
+    "content": {
+        "0": {你的内容}
+    },
+    "display": {播放器收到的信息}
+}
+// 第二回合裁判输入
+{
+    "log": [
+        {
+            "verdict": "OK",
+			"time": 3,
+			"output": 1,
+			"memory": 5
+		},
+		{
+			"0": {
+				"response": x,
+				"verdict": "OK",
+				"time": 2,
+				"memory": 5
+			}
+		}
+    ]
+}
+// 应当输出
+{
+    "command": "finish",
+    "content": {
+        "0": 分数
+    },
+    "display": {播放器收到的信息}
+}

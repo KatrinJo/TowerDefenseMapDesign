@@ -21,6 +21,7 @@ class User:
                     if cost + towerConfig[k]["tPrice"] > self.uWealth:
                         continue
                     # TODO : 放置炮塔策略
+
                     if False:
                         newTower[(x, y)] = k
                         cost += towerConfig[k]["tPrice"]

@@ -48,23 +48,22 @@ def place_tower(app, num): # 放置塔
     tmp = pT.values()
     costCount = sum([towerConfig[str(k)]["tPrice"] for k in tmp])
     if costCount > user.uWealth:
-        print("财富不足以建塔")
-        flag = -4
+        app.logs.insert(tk.END, "财富不足以建塔")
+        flag = -2
         return po, flag
     for k in po:
         (x,y) = k
         if x < 0 or x >= gridMap.mapHeight or y < 0 or y >= gridMap.mapWidth:
-            print("不能超出地图范围")   
-            flag = -5
-            break
-        if [x,y] in roadInfo:
-            print("不能在道路上建塔")
+            app.logs.insert(tk.END, "建塔点不能超出地图范围：" + str((x,y)))
             flag = -1
             break
-        if len(gridMap.mapInfo[x][y]) > 0:
-            print("格子上有：" + str(gridMap.mapInfo[x][y]) + ", 坐标为" + str((x,y)))
-            print("不能在已有塔处建塔")
+        if [x,y] in roadInfo:
+            app.logs.insert(tk.END, "建塔点不能在道路上：" + str((x,y)))
             flag = -3
+            break
+        elif len(gridMap.mapInfo[x][y]) > 0:
+            app.logs.insert(tk.END, "建塔点不能在已有塔格点处：" + str((x,y)) + "，格点处已有塔：" + str(gridMap.mapInfo[x][y])) 
+            flag = -4
             break
 
         newTowerType = pT[str(k)]
@@ -97,8 +96,8 @@ def attack_enemy(app):
             if k < 0: 
                 continue
             if k not in enemyIns:
-                print("敌人实例列表中没有此敌人")
-                flag = -40
+                app.logs2.insert(tk.END, "攻击敌人时，敌人实例列表中没有此敌人")
+                flag = -5
                 break
             tAttack = dictEidEhpEspeed[k]["tAttack"]
             tSlowRate = dictEidEhpEspeed[k]["tSlowRate"]
@@ -110,12 +109,14 @@ def attack_enemy(app):
                 [x, y] = gridMap.roadInfo[pos]
                 [x2, y2] = dictEidEhpEspeed[k]["ePos"]
                 if x != x2 or y != y2:
-                    flag = -10
+                    app.logs2.insert(tk.END, "攻击敌人时，敌人在地图上的坐标" + str(x,y) + "与塔检测坐标" + str((x2,y2)) + "不一致")
+                    flag = -6
                     break
                 user.uWealth += enemyIns[k].eReward
                 enemyIns.pop(k)
                 if k not in gridMap.mapInfo[x][y]:
-                    flag = -11
+                    app.logs2.insert(tk.END, "攻击敌人时，塔检测实施打击的位于" + str((x,y)) + "的敌人不在地图上")
+                    flag = -7
                     break
                 gridMap.mapInfo[x][y].remove(k) # remove(value)
                 if len(gridMap.mapInfo[x][y]) == 1: # 这个格子的敌人被打死了，之后这个格子里没有了敌人
@@ -137,7 +138,7 @@ def produce_enemy(app, en, enemyMaxID):
             enemyMaxID += 1
             sen += enemyName[i+1]
     if len(sen) != 0:
-        app.logs2.insert(tk.END, "等待产生的敌人为：" + sen) # print("等待产生的敌人为：" + sen)
+        app.logs2.insert(tk.END, "等待产生的敌人为：" + sen)
     return en, enemyMaxID
 
 def go_ahead_enemy(app, num):
@@ -153,16 +154,16 @@ def go_ahead_enemy(app, num):
             continue
         [x, y] = gridMap.roadInfo[pos]
         if k not in gridMap.mapInfo[x][y]:
-            print("道路格子上没有这个敌人编号")
-            flag = -11
+            app.logs2.insert(tk.END, "敌人行进时，坐标" + str((x,y)) + "处没有此敌人")
+            flag = -8
             break
         res = enemyIns[k].go_forward()
         if res == -100 or res == -200:
             continue
         if res != -100 and res != -200:
             if res < 0:
-                print("道路格子下标成负数了")
-                flag = -2
+                app.logs2.insert(tk.END, "敌人行进时的道路格子下标成负数了")
+                flag = -9
                 break
             elif res >= lenRoad:
                 app.logs.insert(tk.END, "波次"+str(num)+"没有成功")
@@ -173,7 +174,7 @@ def go_ahead_enemy(app, num):
         if len(gridMap.mapInfo[x][y]) == 1: # 这个格子的敌人向前进了一步，之后这个格子里没有了敌人
             app.mapgrid[x][y]["bg"] = roadColor
 
-        print(str(gridMap.mapInfo[x][y]))
+        # print(str(gridMap.mapInfo[x][y]))
         app.mapgrid[x][y]["text"] = ''.join(enemyName[int(enemyIns[e].eType)] for e in gridMap.mapInfo[x][y] if e >= 0)
 
         enemyIns[k].position = res

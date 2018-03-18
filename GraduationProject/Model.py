@@ -1,14 +1,20 @@
 import numpy as np
 import warnings
 
+class dataPack:
+    def __init__(self):
+        self.enemyCount = 0 # enemyMaxID
+        self.towerCount = 0
+
 class Map:
     def __init__(self,h, w, s, e, ri):
         self.mapHeight = h
         self.mapWidth = w
         self.mapStart = s
         self.mapEnd = e
-        
-        
+        self.enemyStep = []
+        self.enemyReward = []
+
         tmpMapInfo = [[[] for i in range(w)] for j in range(h)]# 存放：-1表示路径，其余表示敌人的eID
         #print(tmpMapInfo)
         tmpMapInfo = np.array(tmpMapInfo).tolist()
@@ -30,10 +36,8 @@ class EnemyInstance:
         self.eReward = reward
 
     def reveive_attack(self, subHP, subSpeed):
-        #print("我受到了攻击嘤嘤嘤，原血量为" + str(self.eRestHP) + "，原速度为" + str(self.eCurrSpeed))
         self.eRestHP -= subHP
         self.eCurrSpeed *= subSpeed
-        #print("受到攻击，现血量为" + str(self.eRestHP) + "，现速度为" + str(self.eCurrSpeed))
         if self.eRestHP <= 0:
             return -1
         return 0
@@ -129,13 +133,44 @@ class TowerInstance:
                 self.tNextAttackTimeRest = max(int(1/self.tFreq)-1, 0)
         return dictEidEhpEspeed
 
+class User:
+    def __init__(self, wealth):
+        self.uWealth = wealth
 
-a = [1,2,3,4,5]
-a.pop(3) # list.pop(index)
-if 3 in a:
-    a.remove(3) # list.remove(value)
-else:
-    print("a数组中没有3")
-# list concat : [] + [] direct add
+    def place_new_tower(self, map, towerConfig): # 返回的是字典，key表示坐标，value表示放置第几类炮塔
+        newTower = {}
+        cost = 0
+        for x in range(map.mapHeight):
+            for y in range(map.mapWidth):
+                if [x,y] in map.roadInfo: # 要建塔的位置在道路上
+                    continue
+                if len(map.mapInfo[x][y]) > 0: # 要建塔的位置上已经有塔了
+                    continue
+                for k in towerConfig.keys():
+                    if cost + towerConfig[k]["tPrice"] > self.uWealth:
+                        continue
+                    # TODO : 放置炮塔策略
 
-a = ['1','2','3','4']+[3,3,4,5,6,7]  # list可以直接相加    
+                    if False:
+                        newTower[(x, y)] = k
+                        cost += towerConfig[k]["tPrice"]
+        return newTower, cost
+
+    def reduce_wealth(self, cost):
+        self.uWealth -= cost
+
+class Score:
+    def __init__(self):
+        self.reward = 0
+        self.step = 0
+        self.result = 0
+
+#a = [1,2,3,4,5]
+#a.pop(3) # list.pop(index)
+#if 3 in a:
+#    a.remove(3) # list.remove(value)
+#else:
+#    print("a数组中没有3")
+## list concat : [] + [] direct add
+
+#a = ['1','2','3','4']+[3,3,4,5,6,7]  # list可以直接相加    
